@@ -213,14 +213,14 @@ public class JtdsStatement implements java.sql.Statement
      * Called when this object goes out of scope to close any
      * <code>ResultSet</code> object and this statement.
      */
-    protected void finalize() throws Throwable {
-        super.finalize();
-        try {
-            close();
-        } catch (SQLException e) {
-            // Ignore errors
-        }
-    }
+//    protected void finalize() throws Throwable {
+//        super.finalize();
+//        try {
+//            close();
+//        } catch (SQLException e) {
+//            // Ignore errors
+//        }
+//    }
 
     /**
      * Get the Statement's TDS object.
