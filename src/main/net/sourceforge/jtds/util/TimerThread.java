@@ -17,8 +17,9 @@
 //
 package net.sourceforge.jtds.util;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Simple timer class used to implement login and query timeouts.
@@ -48,7 +49,7 @@ public class TimerThread extends Thread {
      * Internal class associating a login or query timeout value with a target
      * <code>TimerListener</code>.
      */
-    private static class TimerRequest {
+    private static class TimerRequest implements Delayed {
         /** The time when this timeout will expire. */
         final long time;
         /** Target to notify when the timeout expires. */
@@ -70,15 +71,21 @@ public class TimerThread extends Thread {
             this.time = System.currentTimeMillis() + (timeout);
             this.target = target;
         }
+        
+        public long getDelay(TimeUnit unit) {
+            return unit.convert(time - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        }
+        
+        @Override
+        public int compareTo(Delayed delayed) {
+            return Long.valueOf(time).compareTo(Long.valueOf(((TimerRequest) delayed).time));
+        }
     }
 
     /** Singleton instance. */
     private static TimerThread instance;
 
-    /** List of <code>TimerRequest</code>s to execute, ordered by time. */
-    private final LinkedList timerList = new LinkedList();
-    /** Time when the first request time out should occur. */
-    private long nextTimeout;
+    private final DelayQueue<TimerRequest> queue = new DelayQueue<>();
 
     /**
      * Singleton getter.
@@ -105,38 +112,16 @@ public class TimerThread extends Thread {
      * Execute the <code>TimerThread</code> main loop.
      */
     public void run() {
-        synchronized (timerList) {
-            boolean run = true;
-            while (run) {
-                try {
-                    long ms;
-                    while ((ms = nextTimeout - System.currentTimeMillis()) > 0 || nextTimeout == 0) {
-                        // positive timeout, wait appropriately
-                        timerList.wait(nextTimeout==0 ? 0 : ms);
-                    }
-
-                    // Fire expired timeout requests
-                    long time = System.currentTimeMillis();
-                    while (!timerList.isEmpty()) {
-                        // Examine the head of the list and see
-                        // if the timer has expired.
-                        TimerRequest t = (TimerRequest) timerList.getFirst();
-                        if (t.time > time) {
-                            break; // No timers have expired
-                        }
-                        // Notify target of timeout
-                        t.target.timerExpired();
-                        // Remove the fired timeout request
-                        timerList.removeFirst();
-                    }
-
-                    // Determine next timeout
-                    updateNextTimeout();
-                } catch (InterruptedException e) {
-                    // stopThread() called, or thread interrupted externally
-                    run = false;
-                    timerList.clear();
-                }
+        boolean run = true;
+        while (run && !isInterrupted()) {
+            TimerRequest request = null;
+            try {
+                request = queue.take();
+            } catch (InterruptedException ex) {
+                run = false;
+            }
+            if (request != null && request.target != null) {
+                request.target.timerExpired();
             }
         }
     }
@@ -156,35 +141,7 @@ public class TimerThread extends Thread {
     public Object setTimer(int timeout, TimerListener l) {
         // Create a new timer request
         TimerRequest t = new TimerRequest(timeout, l);
-
-        synchronized (timerList) {
-            if (timerList.isEmpty()) {
-                // List was empty, just add new request
-                timerList.add(t);
-            } else {
-                // Tiny optimization; new requests will usually go to the end
-                TimerRequest crt = (TimerRequest) timerList.getLast();
-                if (t.time >= crt.time) {
-                    timerList.addLast(t);
-                } else {
-                    // Iterate the list and insert it into the right place
-                    for (ListIterator li = timerList.listIterator(); li.hasNext(); ) {
-                        crt = (TimerRequest) li.next();
-                        if (t.time < crt.time) {
-                            li.previous();
-                            li.add(t);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // If this request is now the first in the list, interrupt timer
-            if (timerList.getFirst() == t) {
-                nextTimeout = t.time;
-                timerList.notifyAll();
-            }
-        }
+        queue.offer(t);
 
         // Return the created request as timer handle
         return t;
@@ -199,14 +156,8 @@ public class TimerThread extends Thread {
      */
     public boolean cancelTimer(Object handle) {
         TimerRequest t = (TimerRequest) handle;
-
-        synchronized (timerList) {
-            boolean result = timerList.remove(t);
-            if (nextTimeout == t.time) {
-                updateNextTimeout();
-            }
-            return result;
-        }
+        
+        return queue.remove(t);
     }
 
     /**
@@ -230,15 +181,7 @@ public class TimerThread extends Thread {
      */
     public boolean hasExpired(Object handle) {
         TimerRequest t = (TimerRequest) handle;
-
-        synchronized (timerList) {
-            return !timerList.contains(t);
-        }
-    }
-
-    /** Internal method that updates the value of {@link #nextTimeout}. */
-    private void updateNextTimeout() {
-        nextTimeout = timerList.isEmpty() ? 0
-                : ((TimerRequest) timerList.getFirst()).time;
+        
+        return !queue.contains(t);
     }
 }
