@@ -1,0 +1,6 @@
+net.sourceforge.jtds.jdbc
+net.sourceforge.jtds.jdbc.cache
+net.sourceforge.jtds.jdbcx
+net.sourceforge.jtds.jdbcx.proxy
+net.sourceforge.jtds.ssl
+net.sourceforge.jtds.util
