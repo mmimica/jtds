@@ -91,7 +91,7 @@ class SQLParser {
    /**
     * a LRU cache for the last 500 parsed SQL statements
     */
-   private final static SimpleLRUCache<SQLCacheKey,CachedSQLQuery> _Cache = new SimpleLRUCache( 1000 );
+    private static final ThreadLocal<SimpleLRUCache<SQLCacheKey, CachedSQLQuery>> TL_Cache = ThreadLocal.withInitial(() -> new SimpleLRUCache<SQLCacheKey, CachedSQLQuery>(1000));
 
     /** Original SQL string */
     private final String sql;
@@ -157,7 +157,8 @@ class SQLParser {
          // reduce the contention greatly in the nominal case.
 
          SQLCacheKey cacheKey = new SQLCacheKey( sql, connection );
-         CachedSQLQuery cachedQuery = _Cache.get( cacheKey );
+         SimpleLRUCache<SQLCacheKey, CachedSQLQuery> cache = TL_Cache.get();
+        CachedSQLQuery cachedQuery = cache.get( cacheKey );
 
          if( cachedQuery == null )
          {
@@ -165,7 +166,7 @@ class SQLParser {
             ret = new SQLParser( sql, paramList, connection ).parse( extractTable );
 
             // update LRU cache
-            _Cache.put( cacheKey, new CachedSQLQuery( ret, paramList ) );
+            cache.put( cacheKey, new CachedSQLQuery( ret, paramList ) );
          }
          else
          {

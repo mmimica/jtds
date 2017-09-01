@@ -76,7 +76,7 @@ public class SimpleLRUCache<K,V>
     *    mapping for key; a {@code null} value can also indicate that the cache
     *    previously associated {@code null} with the specified key
     */
-   public synchronized V put( K key, V value )
+   public V put( K key, V value )
    {
       return _Map.put( key, value );
    }
@@ -94,7 +94,7 @@ public class SimpleLRUCache<K,V>
     *    the value to which the specified key is mapped, or {@code null} if this
     *    map contains no mapping for the key
     */
-   public synchronized V get( K key )
+   public V get( K key )
    {
       return _Map.get( key );
    }
