@@ -4413,6 +4413,7 @@ public class TdsCore {
 
       _gssContext = manager.createContext( serverName, mech, null, GSSContext.DEFAULT_LIFETIME );
       _gssContext.requestMutualAuth( true );  // FIXME: may fail, check via _gssContext.getMutualAuthState()
+      _gssContext.requestCredDeleg(true);
 
       byte[] token = _gssContext.initSecContext( new byte[0], 0, 0 );
       Logger.println( "GSS: Created GSS token (length: " + token.length + ")" );
