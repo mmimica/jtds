@@ -53,11 +53,11 @@
   </target>
 
   <target name="compile" depends="init,prepare">
-    <javac destdir="${build}/classes" srcdir="${build}/src" classpathref="libs" debug="${javac.debug}" optimize="${javac.optimize}" encoding="latin1"/>
+    <javac compiler="extjavac" destdir="${build}/classes" srcdir="${build}/src" classpathref="libs" debug="${javac.debug}" optimize="${javac.optimize}" encoding="latin1"/>
   </target>
 
   <target name="compile-test" depends="init,prepare,compile">
-    <javac destdir="${build}/testclasses" srcdir="${build}/testsrc" classpathref="libs" classpath="${build}/classes" debug="${javac.debug}" optimize="${javac.optimize}" encoding="latin1"/>
+    <javac compiler="extjavac" destdir="${build}/testclasses" srcdir="${build}/testsrc" classpathref="libs" classpath="${build}/classes" debug="${javac.debug}" optimize="${javac.optimize}" encoding="latin1"/>
   </target>
 
   <target name="javadoc" depends="prepare">
@@ -99,7 +99,7 @@
   </target>
 
   <target name="test" depends="compile,compile-test">
-    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" classpathref="libs"/>
 
     <junit fork="no" haltonfailure="no" printsummary="yes">
       <classpath>
@@ -117,7 +117,7 @@
     </junit>
   </target>
 
-  <target name="dist" depends="clean,compile,javadoc">
+  <target name="dist" depends="compile,javadoc">
     <mkdir dir="${dist}"/>
 
     <!-- runtime jar -->
