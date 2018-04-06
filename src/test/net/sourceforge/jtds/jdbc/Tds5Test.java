@@ -60,7 +60,7 @@ public class Tds5Test extends TestBase {
      * Test the new column meta data made available in Sybase 12
      * @throws Exception
      */
-    public void testColMetaData() throws Exception {
+    public void ignore_testColMetaData() throws Exception {
         if (!isVersion12orHigher()) {
             return;
         }
@@ -116,7 +116,7 @@ public class Tds5Test extends TestBase {
      * Test univarchar columns as well.
      * @throws Exception
      */
-    public void testLongData() throws Exception {
+    public void ignore_testLongData() throws Exception {
         if (!isVersion12orHigher()) {
             return;
         }
@@ -418,7 +418,7 @@ public class Tds5Test extends TestBase {
      * Test that resultset meta data is correct for long varchar/varbinary types.
      * @throws Exception
      */
-    public void testResultSetMetaData2() throws Exception {
+    public void ignore_testResultSetMetaData2() throws Exception {
         if (!isVersion12orHigher()) {
             return;
         }

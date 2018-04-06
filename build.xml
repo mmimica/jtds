@@ -101,7 +101,7 @@
   <target name="test" depends="compile,compile-test">
     <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" classpathref="libs"/>
 
-    <junit fork="no" haltonfailure="no" printsummary="yes">
+    <junit fork="yes" haltonfailure="yes" haltonerror="yes" printsummary="yes" dir="${build}">
       <classpath>
         <pathelement location="build/classes"/>
         <pathelement location="build/testclasses"/>

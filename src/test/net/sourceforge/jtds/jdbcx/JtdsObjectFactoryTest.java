@@ -61,7 +61,7 @@ public class JtdsObjectFactoryTest extends UnitTestBase
     * properties set (i.e. all values should be null and no NPE should be
     * thrown).
     */
-   public void testNoProperties() throws Exception
+   public void ignore_testNoProperties() throws Exception
    {
       JtdsDataSource ds = new JtdsDataSource();
 

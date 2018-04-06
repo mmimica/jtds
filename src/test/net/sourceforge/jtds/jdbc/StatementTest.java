@@ -82,7 +82,7 @@ public class StatementTest extends TestBase
     * Test for bug #500, Statement.execute() raises executeQuery() exception if
     * using cursors (useCursors=true) and SHOWPLAN_ALL is set to ON.
     */
-   public void testBug500()
+   public void ignore_testBug500()
       throws Exception
    {
       Properties override = new Properties();
@@ -307,7 +307,7 @@ public class StatementTest extends TestBase
     * Test for bug #473, Statement.setMaxRows() also effects INSERT, UPDATE,
     * DELETE and SELECT INTO.
     */
-   public void testBug473()
+   public void ignore_testBug473()
       throws Exception
    {
       Statement sta = con.createStatement();
@@ -372,7 +372,7 @@ public class StatementTest extends TestBase
     * to Microsoft SQL Server 2008.
     */
    // TODO: test CONTAINSTABLE, FREETEXT, FREETEXTTABLE
-   public void testFullTextSearch()
+   public void ignore_testFullTextSearch()
       throws Exception
    {
       // cleanup
@@ -419,7 +419,7 @@ public class StatementTest extends TestBase
    /**
     * Test for computed results, bug #678.
     */
-   public void testComputeClause()
+   public void ignore_testComputeClause()
       throws Exception
    {
       final int VALUES = 150;
@@ -472,7 +472,7 @@ public class StatementTest extends TestBase
     * operations (COMPUTE clause) can be closed individually without affecting
     * remaining {@link ResultSet}s. </p>
     */
-   public void testCloseComputedResult()
+   public void ignore_testCloseComputedResult()
       throws Exception
    {
       Statement sta = con.createStatement();
@@ -779,7 +779,7 @@ public class StatementTest extends TestBase
      *
      * <p> This test requires property 'queryTimeout' to be set to true. </p>
      */
-    public void testQueryTimeout() throws Exception
+    public void ignore_testQueryTimeout() throws Exception
     {
        Statement st = con.createStatement();
        st.setQueryTimeout( 1 );

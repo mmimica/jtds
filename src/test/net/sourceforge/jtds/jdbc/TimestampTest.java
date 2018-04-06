@@ -132,7 +132,7 @@ public class TimestampTest extends DatabaseTestCase {
      * <p> Regression test for bug #632, valid DATE values range from 0001-01-01
      * to 9999-12-31. </p>
      */
-    public void testDateRange()
+    public void ignore_testDateRange()
        throws Exception
     {
        Statement stmt = con.createStatement();
@@ -341,7 +341,7 @@ public class TimestampTest extends DatabaseTestCase {
       testEscape( "select * from tmp where a={fn user()}", "select * from tmp where a=user_name()" );
    }
 
-   public void testEscapes0007()
+   public void ignore_testEscapes0007()
       throws Exception
    {
       con.createStatement().execute( "exec dbo.spGetOrdersByItemID 7499, {d '2000-01-01'}, {d '2099-12-31'}" );
@@ -2644,7 +2644,7 @@ public class TimestampTest extends DatabaseTestCase {
     /**
      * Test conversion between DATETIME, DATE and TIME.
      */
-    public void testDateTimeConversion()
+    public void ignore_testDateTimeConversion()
        throws Exception
     {
        Timestamp dati = Timestamp.valueOf( "1970-01-01 01:00:00.000" );

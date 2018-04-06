@@ -43,23 +43,18 @@
         </developer>
     </developers>
 
-    <dependencies>
-        <!-- jCIFS may be required for named pipe connections -->
-        <dependency>
-            <groupId>jcifs</groupId>
-            <artifactId>jcifs</artifactId>
-            <version>1.3.17</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-        </dependency>
-    </dependencies>
+    <properties>
+        <test_server_name>127.0.0.1</test_server_name>
+        <test_server_port>1433</test_server_port>
+        <test_db_name></test_db_name>
+        <test_connection_options>ssl=require;socketTimeout=10;</test_connection_options>
+        <test_db_user>sa</test_db_user>
+        <test_db_password>yourStrong(!)Password</test_db_password>
+    </properties>
 
     <build>
+        <sourceDirectory>${basedir}/src/main</sourceDirectory>
+        <testSourceDirectory>${basedir}/src/test</testSourceDirectory>
         <plugins>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -88,6 +83,37 @@
                             <skip>${skipTest}</skip>
                             <target>
                                 <property name="version" value="${project.version}"/>
+                                <copy file="${basedir}/conf/connection.properties.tmpl" tofile="${basedir}/build/conf/connection.properties"/>
+                                <replace dir="${basedir}/build/conf">
+                                    <include name="connection.properties"/>
+                                    <replacetoken>SERVER-NAME</replacetoken>
+                                    <replacevalue>${test_server_name}</replacevalue>
+                                </replace>
+                                <replace dir="${basedir}/build/conf">
+                                    <include name="connection.properties"/>
+                                    <replacetoken>SERVER_PORT</replacetoken>
+                                    <replacevalue>${test_server_port}</replacevalue>
+                                </replace>
+                                <replace dir="${basedir}/build/conf">
+                                    <include name="connection.properties"/>
+                                    <replacetoken>DB-NAME</replacetoken>
+                                    <replacevalue>${test_db_name}</replacevalue>
+                                </replace>
+                                <replace dir="${basedir}/build/conf">
+                                    <include name="connection.properties"/>
+                                    <replacetoken>CONNECTION_OPTIONS</replacetoken>
+                                    <replacevalue>${test_connection_options}</replacevalue>
+                                </replace>
+                                <replace dir="${basedir}/build/conf">
+                                    <include name="connection.properties"/>
+                                    <replacetoken>DB_USER</replacetoken>
+                                    <replacevalue>${test_db_user}</replacevalue>
+                                </replace>
+                                <replace dir="${basedir}/build/conf">
+                                    <include name="connection.properties"/>
+                                    <replacetoken>DB_PASSWORD</replacetoken>
+                                    <replacevalue>${test_db_password}</replacevalue>
+                                </replace>
                                 <ant antfile="${basedir}/build.xml" target="test" inheritRefs="true"/>
                             </target>
                         </configuration>
@@ -110,6 +136,35 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <!-- jCIFS may be required for named pipe connections -->
+        <dependency>
+            <groupId>jcifs</groupId>
+            <artifactId>jcifs</artifactId>
+            <version>1.3.17</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-ant-tasks</artifactId>
+            <version>2.1.3</version>
+        </dependency>
+    </dependencies>
 </project>
