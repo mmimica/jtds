@@ -699,7 +699,7 @@ public class BatchTest extends DatabaseTestCase {
      * example for statement that produces multiple update counts unexpectedly:
      * IF sessionproperty('ARITHABORT') = 0 SET ARITHABORT ON
      */
-    public void testBatchUpdateCounts() throws SQLException {
+    public void ignore_testBatchUpdateCounts() throws SQLException {
         Statement statement = con.createStatement();
         statement.execute("CREATE TABLE #BATCHUC (id int)");
         statement.addBatch("insert into #BATCHUC values (1)");

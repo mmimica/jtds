@@ -20,8 +20,6 @@ package net.sourceforge.jtds.jdbc;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.*;
@@ -30,10 +28,6 @@ import java.util.Enumeration;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import net.sourceforge.jtds.jdbc.JtdsConnection;
-import net.sourceforge.jtds.jdbc.DefaultProperties;
-import net.sourceforge.jtds.jdbc.Messages;
 
 /**
  * Unit test for the {@link JtdsConnection} class.
@@ -166,7 +160,8 @@ public class ConnectionTest extends UnitTestBase
       stm.executeUpdate( "create procedure #testBug701 " +
 
      "AS "+
-     "BEGIN TRAN "+
+     "DECLARE @TransactionName varchar(20) = 'Transaction1';  "+
+     "BEGIN TRAN @TransactionName "+
      "BEGIN TRAN "+
      "BEGIN TRAN "+
      // -- wait for 1 hour
@@ -213,7 +208,7 @@ public class ConnectionTest extends UnitTestBase
       }
 
 
-      stm.execute( "IF @@TRANCOUNT > 0 ROLLBACK TRAN 1" );
+      stm.execute( "DECLARE @TransactionName varchar(20) = 'Transaction1'; IF @@TRANCOUNT > 0 ROLLBACK TRAN @TransactionName" );
       ResultSet rs = stm.executeQuery( "SELECT @@TRANCOUNT" );
       dump( rs );
 
@@ -423,7 +418,7 @@ public class ConnectionTest extends UnitTestBase
          {
 
             // create new classloader for loading the actual test
-            ClassLoader cloader = new URLClassLoader( new URL[] { new File( "bin" ).toURI().toURL() }, null )
+            ClassLoader cloader = new URLClassLoader( new URL[] { new File( "bin" ).toURI().toURL() }, getClass().getClassLoader() )
             {
                @Override
                protected void finalize() throws Throwable
@@ -435,18 +430,7 @@ public class ConnectionTest extends UnitTestBase
 
             // load the actual test class
             Class clazz = cloader.loadClass( testTimerStopHelper.class.getName() );
-            Constructor constructor = clazz.getDeclaredConstructor( (Class[]) null );
-
-            // start the test by
-            try
-            {
-               constructor.newInstance( (Object[]) null );
-            }
-            catch( InvocationTargetException e )
-            {
-               // extract target exception
-               throw e.getTargetException();
-            }
+            clazz.newInstance();
          }
 
          // squeeze out any remaining class loaders
@@ -487,8 +471,7 @@ public class ConnectionTest extends UnitTestBase
       public void test() throws Exception
       {
          // load driver
-         Class.forName( "net.sourceforge.jtds.jdbc.Driver" );
-
+         DriverManager.registerDriver((java.sql.Driver) Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance());
          // load connection properties
          Properties p = loadProperties();
 

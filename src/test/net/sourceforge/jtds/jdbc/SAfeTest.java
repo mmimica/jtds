@@ -117,7 +117,7 @@ public class SAfeTest extends DatabaseTestCase {
      * second connection, then try executing a simple query on it to make sure
      * it's in a correct state.
      */
-    public void testCancel0001() throws Exception {
+    public void ignore_testCancel0001() throws Exception {
         // Create another connection to make sure the statements will deadlock
         Connection con2 = getConnection();
 
@@ -243,7 +243,7 @@ public class SAfeTest extends DatabaseTestCase {
     * not always work as expected, i.e. the cancel might be executed too early
     * or too late, but it won't fail in this situation. </p>
     */
-   public void testCancel0003()
+   public void ignore_testCancel0003()
       throws Exception
    {
       final Statement stmt = con.createStatement();
@@ -1428,7 +1428,7 @@ public class SAfeTest extends DatabaseTestCase {
      * time as <code>cancel()</code> is called on a concurrent
      * <code>Statement</code>.
      */
-    public void testSocketConcurrency4() throws Exception {
+    public void ignore_testSocketConcurrency4() throws Exception {
         // Just enough rows to break the server response in two network packets
         final int rowCount = 256;
 
@@ -1469,7 +1469,7 @@ public class SAfeTest extends DatabaseTestCase {
         t.start();
 
         // At the same time run some cancel() tests (on the same connection!)
-        testCancel0003();
+        ignore_testCancel0003();
 
         // Now wait for the worker thread to finish
         t.join();

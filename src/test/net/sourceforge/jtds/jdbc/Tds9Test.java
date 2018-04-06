@@ -174,7 +174,7 @@ public class Tds9Test extends TestBase
    /**
     *
     */
-   public void testXMLFunction() throws Exception
+   public void ignore_testXMLFunction() throws Exception
    {
       if( supportsTDS9() )
       {
@@ -203,7 +203,7 @@ public class Tds9Test extends TestBase
       }
    }
 
-   public void testReadXML() throws Exception
+   public void ignore_testReadXML() throws Exception
    {
       if( supportsTDS9() )
       {
@@ -253,7 +253,7 @@ public class Tds9Test extends TestBase
       }
    }
 
-   public void testReadVarcharMax() throws Exception
+   public void ignore_testReadVarcharMax() throws Exception
    {
       if( supportsTDS9() )
       {
