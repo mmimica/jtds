@@ -2057,7 +2057,7 @@ public class ResultSetTest extends DatabaseTestCase {
     /**
      * Test for bug #548, Select statement very slow with date parameter.
      */
-    public void testDatePerformance() throws SQLException {
+    public void ignore_testDatePerformance() throws SQLException {
         Statement st = con.createStatement();
         st.execute("create table #test(data datetime)");
         st.close();
