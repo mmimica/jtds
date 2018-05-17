@@ -258,6 +258,8 @@ public final class DefaultProperties {
         addDefaultPropertyIfNotSet(props, Driver.BINDADDRESS, BIND_ADDRESS);
         addDefaultPropertyIfNotSet(props, Driver.USEJCIFS, USEJCIFS);
         addDefaultPropertyIfNotSet(props, Driver.BUFFERDIR, BUFFER_DIR);
+        addDefaultPropertyIfNotSet(props, Driver.RESULTSETTIMEOUTMS, "0");
+        addDefaultPropertyIfNotSet(props, Driver.CLOSESOCKETONTIMEOUT, "false");
 
         return props;
     }

@@ -277,6 +277,7 @@ public class Driver implements java.sql.Driver {
         choicesMap.put(Messages.get(Driver.USECURSORS), booleanChoices);
         choicesMap.put(Messages.get(Driver.USELOBS), booleanChoices);
         choicesMap.put(Messages.get(Driver.XAEMULATION), booleanChoices);
+        choicesMap.put(Messages.get(Driver.CLOSESOCKETONTIMEOUT), booleanChoices);
 
         final String[] prepareSqlChoices = new String[]{
             String.valueOf(TdsCore.UNPREPARED),

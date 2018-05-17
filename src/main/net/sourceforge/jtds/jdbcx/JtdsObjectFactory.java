@@ -96,7 +96,9 @@ public class JtdsObjectFactory implements ObjectFactory
             Driver.USER,
             Driver.SENDSTRINGPARAMETERSASUNICODE,
             Driver.WSID,
-            Driver.XAEMULATION
+            Driver.XAEMULATION,
+            Driver.CLOSESOCKETONTIMEOUT,
+            Driver.RESULTSETTIMEOUTMS
          } );
 
          return new JtdsDataSource( props );
