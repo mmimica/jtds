@@ -4133,6 +4133,12 @@ public class TdsCore {
                         new TimerThread.TimerListener() {
                             public void timerExpired() {
                                 TdsCore.this.cancel(true);
+                                if (CLOSE_SOCKET_ON_QUERY_TIMEOUT) {
+                                    try {
+                                        forceCloseSocket();
+                                    }
+                                    catch (Exception ex) {}
+                                }            
                             }
                         });
             }
@@ -4140,12 +4146,6 @@ public class TdsCore {
         } finally {
             if (timer != null) {
                 if (!TimerThread.getInstance().cancelTimer(timer)) {
-                    if (CLOSE_SOCKET_ON_QUERY_TIMEOUT) {
-                        try {
-                            forceCloseSocket();
-                        }
-                        catch (Exception ex) {}
-                    }
                     throw new SQLTimeoutException(
                           Messages.get("error.generic.timeout"), "HYT00");
                 }
