@@ -21,12 +21,13 @@ import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 import java.sql.SQLWarning;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import net.sourceforge.jtds.util.TimerThread;
 
@@ -511,17 +512,10 @@ public class JtdsStatement implements java.sql.Statement
                     Messages.get("warning.cursordowngraded", warningMessage), "01000"));
         }
 
-        Object timer = null;
-        try {
-            if (RESULTSET_TIMEOUT > 0)
-                timer = TimerThread.getInstance().setTimer(RESULTSET_TIMEOUT, () -> tds.forceCloseSocket());
-            // Ignore update counts preceding the result set. All drivers seem to
-            // do this.
+        guarded(() -> {
             while (!tds.getMoreResults() && !tds.isEndOfResponse());
-        } finally {
-            if (timer != null)
-                TimerThread.getInstance().cancelTimer(timer);
-        }
+            return null;
+        });
 
         // check for server side errors
         messages.checkErrors();
@@ -588,7 +582,7 @@ public class JtdsStatement implements java.sql.Statement
                     "warning.cursordowngraded", warningMessage), "01000"));
         }
 
-        if (processResultsGuarded(update)) {
+        if (guarded(() -> processResults(update))) {
             Object nextResult = resultQueue.removeFirst();
 
             // Next result is an update count
@@ -605,15 +599,22 @@ public class JtdsStatement implements java.sql.Statement
         }
     }
 
-    private boolean processResultsGuarded( boolean update ) throws SQLException {
+    private static interface SQLSupplier<T> {
+        T get() throws SQLException;
+    }
+
+    private <T> T guarded(SQLSupplier<T> r) throws SQLException {
+        if (RESULTSET_TIMEOUT <= 0)
+            return r.get();
+
         Object timer = null;
         try {
-            if (RESULTSET_TIMEOUT > 0)
-                timer = TimerThread.getInstance().setTimer(RESULTSET_TIMEOUT, () -> tds.forceCloseSocket());
-            return processResults(update);
+            timer = TimerThread.getInstance().setTimer(RESULTSET_TIMEOUT, () -> tds.forceCloseSocket());
+            return r.get();
         } finally {
-            if (timer != null)
-                TimerThread.getInstance().cancelTimer(timer);
+            if (!TimerThread.getInstance().cancelTimer(timer)) {
+                throw new SQLTimeoutException(Messages.get("error.generic.timeout"), "HYT00");
+            }
         }
     }
 
@@ -731,7 +732,7 @@ public class JtdsStatement implements java.sql.Statement
      */
     protected void cacheResults() throws SQLException {
         // Cache results
-        processResultsGuarded(false);
+        guarded(() -> processResults(false));
     }
 
    /**
@@ -1245,7 +1246,7 @@ public class JtdsStatement implements java.sql.Statement
         messages.checkErrors();
 
         // Dequeue any results
-        if (!resultQueue.isEmpty() || processResultsGuarded(false)) {
+        if (!resultQueue.isEmpty() || guarded(() -> processResults(false))) {
             Object nextResult = resultQueue.removeFirst();
 
             // Next result is an update count
