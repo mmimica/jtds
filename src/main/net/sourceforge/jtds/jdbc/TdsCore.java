@@ -895,6 +895,15 @@ public class TdsCore {
         }
     }
 
+    void forceCloseSocket() {
+        try {
+            in.forceClose();
+            out.close();
+        } finally {
+            isClosed = true;
+        } 
+    }
+
     /**
      * Send (only) one cancel packet to the server.
      *

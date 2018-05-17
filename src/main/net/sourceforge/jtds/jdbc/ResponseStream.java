@@ -431,6 +431,11 @@ public class ResponseStream {
         socket.closeStream(_VirtualSocket);
     }
 
+    void forceClose() {
+        isClosed = true;
+        socket.forceClose();
+    }
+
     /**
      * Retrieves the TDS version number.
      *

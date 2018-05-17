@@ -25,7 +25,10 @@ import java.sql.SQLWarning;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import net.sourceforge.jtds.util.TimerThread;
 
 /**
  * jTDS implementation of the java.sql.Statement interface.<p>
@@ -70,6 +73,14 @@ public class JtdsStatement implements java.sql.Statement
     * "_JTDS_GENE_RATED_KEYS_"
     */
    static final String GENKEYCOL = "_JTDS_GENE_R_ATED_KEYS_";
+
+   private static int RESULTSET_TIMEOUT = 0;
+
+   static {
+       try {
+            RESULTSET_TIMEOUT = Integer.parseInt(System.getProperty("jtds.resultset.timeout.ms"));
+       } catch (Exception ex) {}
+   }
 
     /*
      * Constants used for backwards compatibility with JDK 1.3
@@ -500,9 +511,17 @@ public class JtdsStatement implements java.sql.Statement
                     Messages.get("warning.cursordowngraded", warningMessage), "01000"));
         }
 
-        // Ignore update counts preceding the result set. All drivers seem to
-        // do this.
-        while (!tds.getMoreResults() && !tds.isEndOfResponse());
+        Object timer = null;
+        try {
+            if (RESULTSET_TIMEOUT > 0)
+                timer = TimerThread.getInstance().setTimer(RESULTSET_TIMEOUT, () -> tds.forceCloseSocket());
+            // Ignore update counts preceding the result set. All drivers seem to
+            // do this.
+            while (!tds.getMoreResults() && !tds.isEndOfResponse());
+        } finally {
+            if (timer != null)
+                TimerThread.getInstance().cancelTimer(timer);
+        }
 
         // check for server side errors
         messages.checkErrors();
@@ -583,6 +602,18 @@ public class JtdsStatement implements java.sql.Statement
             return true;
         } else {
             return false;
+        }
+    }
+
+    private boolean processResultsGuarded( boolean update ) throws SQLException {
+        Object timer = null;
+        try {
+            if (RESULTSET_TIMEOUT > 0)
+                timer = TimerThread.getInstance().setTimer(RESULTSET_TIMEOUT, () -> tds.forceCloseSocket());
+            return processResults(update);
+        } finally {
+            if (timer != null)
+                TimerThread.getInstance().cancelTimer(timer);
         }
     }
 
@@ -700,7 +731,7 @@ public class JtdsStatement implements java.sql.Statement
      */
     protected void cacheResults() throws SQLException {
         // Cache results
-        processResults(false);
+        processResultsGuarded(false);
     }
 
    /**
@@ -1214,7 +1245,7 @@ public class JtdsStatement implements java.sql.Statement
         messages.checkErrors();
 
         // Dequeue any results
-        if (!resultQueue.isEmpty() || processResults(false)) {
+        if (!resultQueue.isEmpty() || processResultsGuarded(false)) {
             Object nextResult = resultQueue.removeFirst();
 
             // Next result is an update count
