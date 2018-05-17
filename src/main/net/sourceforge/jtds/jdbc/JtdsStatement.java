@@ -27,7 +27,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 import net.sourceforge.jtds.util.TimerThread;
 
