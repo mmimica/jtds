@@ -4127,18 +4127,21 @@ public class TdsCore {
         try {
             if (timeOut > 0) {
                 // Start a query timeout timer
-                timer = TimerThread.getInstance().setTimer(timeOut * 1000, () -> TdsCore.this.cancel(true));
+                timer = TimerThread.getInstance().setTimer(timeOut * 1000,
+                        () -> {
+                            TdsCore.this.cancel(true);
+                            if (connection.isCloseSocketOnTimeout()) {
+                                try {
+                                    forceCloseSocket();
+                                }
+                                catch (Exception ex) {}
+                            }
+                        });
             }
             in.peek();
         } finally {
             if (timer != null) {
                 if (!TimerThread.getInstance().cancelTimer(timer)) {
-                    if (connection.isCloseSocketOnTimeout()) {
-                        try {
-                            forceCloseSocket();
-                        }
-                        catch (Exception ex) {}
-                    }
                     throw new SQLTimeoutException(
                           Messages.get("error.generic.timeout"), "HYT00");
                 }
