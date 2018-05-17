@@ -238,6 +238,8 @@ public class JtdsConnection implements java.sql.Connection {
     private boolean useNTLMv2 = false;
     /** Force Kerberos authentication */
     private boolean useKerberos = false;
+    private int resultSetTimeoutMs;
+    private boolean closeSocketOnTimeout;
 
     /** the number of currently open connections */
     private static int[] connections = new int[1];
@@ -1299,6 +1301,9 @@ public class JtdsConnection implements java.sql.Connection {
             throw new SQLException(Messages.get("error.connection.badprop",
                     Messages.get(Driver.BUFFERMINPACKETS)), "08001");
         }
+
+        resultSetTimeoutMs = parseIntegerProperty(info, Driver.RESULTSETTIMEOUTMS);
+        closeSocketOnTimeout = parseBooleanProperty(info, Driver.CLOSESOCKETONTIMEOUT);
     }
 
     /**
@@ -2897,5 +2902,21 @@ public class JtdsConnection implements java.sql.Connection {
     public int getNetworkTimeout() throws SQLException {
         // TODO Auto-generated method stub
         throw new AbstractMethodError();
+    }
+
+    public int getResultSetTimeoutMs() {
+        return resultSetTimeoutMs;
+    }
+
+    public void setResultSetTimeoutMs(int resultSetTimeoutMs) {
+        this.resultSetTimeoutMs = resultSetTimeoutMs;
+    }
+
+    public boolean isCloseSocketOnTimeout() {
+        return closeSocketOnTimeout;
+    }
+
+    public void setCloseSocketOnTimeout(boolean closeSocketOnTimeout) {
+        this.closeSocketOnTimeout = closeSocketOnTimeout;
     }
 }
