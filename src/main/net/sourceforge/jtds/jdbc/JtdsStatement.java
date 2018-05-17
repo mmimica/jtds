@@ -588,7 +588,7 @@ public class JtdsStatement implements java.sql.Statement
                     "warning.cursordowngraded", warningMessage), "01000"));
         }
 
-        if (processResults(update)) {
+        if (processResultsGuarded(update)) {
             Object nextResult = resultQueue.removeFirst();
 
             // Next result is an update count

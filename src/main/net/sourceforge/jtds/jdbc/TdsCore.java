@@ -69,6 +69,8 @@ import net.sourceforge.jtds.util.TimerThread;
  * @author FreeTDS project
  */
 public class TdsCore {
+    private static boolean CLOSE_SOCKET_ON_QUERY_TIMEOUT = Boolean.valueOf(System.getProperty("jtds.close.socket.on.query.timeout"));
+
     /**
      * Inner static class used to hold information about TDS tokens read.
      */
@@ -897,6 +899,7 @@ public class TdsCore {
 
     void forceCloseSocket() {
         try {
+            socket.forceClose();
             in.forceClose();
             out.close();
         } finally {
@@ -4130,6 +4133,8 @@ public class TdsCore {
                         new TimerThread.TimerListener() {
                             public void timerExpired() {
                                 TdsCore.this.cancel(true);
+                                if (CLOSE_SOCKET_ON_QUERY_TIMEOUT)
+                                    forceCloseSocket();
                             }
                         });
             }
