@@ -118,8 +118,8 @@ public class Driver implements java.sql.Driver {
     public static final String SENDSTRINGPARAMETERSASUNICODE = "prop.useunicode";
     public static final String WSID          = "prop.wsid";
     public static final String XAEMULATION   = "prop.xaemulation";
-    public static final String CLOSESOCKETONTIMEOUT   = "prop.close.socket.on.query.timeout";
-    public static final String RESULTSETTIMEOUTMS   = "prop.resultset.timeout.ms";
+    public static final String CLOSESOCKETONTIMEOUT   = "prop.closesocketonquerytimeout";
+    public static final String RESULTSETTIMEOUTMS   = "prop.resultsettimeoutms";
 
     static {
         try {
