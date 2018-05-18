@@ -118,6 +118,8 @@ public class Driver implements java.sql.Driver {
     public static final String SENDSTRINGPARAMETERSASUNICODE = "prop.useunicode";
     public static final String WSID          = "prop.wsid";
     public static final String XAEMULATION   = "prop.xaemulation";
+    public static final String CLOSESOCKETONTIMEOUT   = "prop.closesocketonquerytimeout";
+    public static final String RESULTSETTIMEOUTMS   = "prop.resultsettimeoutms";
 
     static {
         try {
@@ -275,6 +277,7 @@ public class Driver implements java.sql.Driver {
         choicesMap.put(Messages.get(Driver.USECURSORS), booleanChoices);
         choicesMap.put(Messages.get(Driver.USELOBS), booleanChoices);
         choicesMap.put(Messages.get(Driver.XAEMULATION), booleanChoices);
+        choicesMap.put(Messages.get(Driver.CLOSESOCKETONTIMEOUT), booleanChoices);
 
         final String[] prepareSqlChoices = new String[]{
             String.valueOf(TdsCore.UNPREPARED),

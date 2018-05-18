@@ -74,14 +74,6 @@ public class JtdsStatement implements java.sql.Statement
     */
    static final String GENKEYCOL = "_JTDS_GENE_R_ATED_KEYS_";
 
-   private static int RESULTSET_TIMEOUT = 0;
-
-   static {
-       try {
-            RESULTSET_TIMEOUT = Integer.parseInt(System.getProperty("jtds.resultset.timeout.ms"));
-       } catch (Exception ex) {}
-   }
-
     /*
      * Constants used for backwards compatibility with JDK 1.3
      */
@@ -603,12 +595,13 @@ public class JtdsStatement implements java.sql.Statement
     }
 
     private <T> T guarded(SQLSupplier<T> r) throws SQLException {
-        if (RESULTSET_TIMEOUT <= 0)
+        int resultSetTimeoutMs = connection.getResultSetTimeoutMs();
+        if (resultSetTimeoutMs <= 0)
             return r.get();
 
         Object timer = null;
         try {
-            timer = TimerThread.getInstance().setTimer(RESULTSET_TIMEOUT, () -> tds.forceCloseSocket());
+            timer = TimerThread.getInstance().setTimer(resultSetTimeoutMs, () -> tds.forceCloseSocket());
             return r.get();
         } finally {
             if (!TimerThread.getInstance().cancelTimer(timer)) {
