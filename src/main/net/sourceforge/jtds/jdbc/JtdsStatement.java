@@ -601,7 +601,7 @@ public class JtdsStatement implements java.sql.Statement
 
         Object timer = null;
         try {
-            timer = TimerThread.getInstance().setTimer(resultSetTimeoutMs, () -> tds.forceCloseSocket());
+            timer = TimerThread.getInstance().setTimer(resultSetTimeoutMs, () -> tds.closeConnection());
             return r.get();
         } finally {
             if (!TimerThread.getInstance().cancelTimer(timer)) {

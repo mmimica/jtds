@@ -895,16 +895,6 @@ public class TdsCore {
         }
     }
 
-    void forceCloseSocket() {
-        try {
-            socket.forceClose();
-            in.forceClose();
-            out.close();
-        } finally {
-            isClosed = true;
-        } 
-    }
-
     /**
      * Send (only) one cancel packet to the server.
      *
@@ -4131,10 +4121,7 @@ public class TdsCore {
                         () -> {
                             TdsCore.this.cancel(true);
                             if (connection.isCloseSocketOnTimeout()) {
-                                try {
-                                    forceCloseSocket();
-                                }
-                                catch (Exception ex) {}
+                                connection.setClosed();
                             }
                         });
             }
