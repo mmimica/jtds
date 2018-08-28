@@ -90,10 +90,14 @@ public class TimerThread extends Thread {
     /**
      * Singleton getter.
      */
-    public static synchronized TimerThread getInstance() {
+    public static TimerThread getInstance() {
         if (instance == null) {
-            instance = new TimerThread();
-            instance.start();
+            synchronized (TimerThread.class) {
+                if (instance == null) {
+                    instance = new TimerThread();
+                    instance.start();
+                }
+            }
         }
         return instance;
     }
