@@ -83,7 +83,7 @@ public class TimerThread extends Thread {
     }
 
     /** Singleton instance. */
-    private static TimerThread instance;
+    private static volatile TimerThread instance;
 
     private final DelayQueue<TimerRequest> queue = new DelayQueue<>();
 
@@ -94,8 +94,9 @@ public class TimerThread extends Thread {
         if (instance == null) {
             synchronized (TimerThread.class) {
                 if (instance == null) {
-                    instance = new TimerThread();
-                    instance.start();
+                    TimerThread thread = new TimerThread();
+                    thread.start();
+                    instance = thread;
                 }
             }
         }
