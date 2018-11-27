@@ -4407,8 +4407,13 @@ public class TdsCore {
       // Canonicalize hostname to create SPN like MIT Kerberos does
       String host = InetAddress.getByName( socket.getHost() ).getCanonicalHostName();
       int port = socket.getPort();
-
-      GSSName serverName = manager.createName( "MSSQLSvc/" + host + ":" + port, nameType );
+      String srvName = "MSSQLSvc/" + host + ":" + port;
+      String realm = SpnUtils.findRealmInHostName(host);
+      if (realm != null) {
+          // If a REALM has been found, we enrich the server name with it
+          srvName += "@" + realm;
+      }
+      GSSName serverName = manager.createName(srvName , nameType );
 
       Logger.println( "GSS: Using SPN " + serverName );
 
