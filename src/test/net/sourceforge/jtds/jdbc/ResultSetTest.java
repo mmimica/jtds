@@ -2031,8 +2031,9 @@ public class ResultSetTest extends DatabaseTestCase {
         Statement st = con.createStatement();
         st.execute("create table #testNegativeOverflow(data int)");
 
-        int    [] values   = new int    [] {   -1,  -128, -129,   127,  128};
-        boolean[] overflow = new boolean[] {false, false, true, false, true};
+        int    [] values   = new int    [] {   -1,  -128, -129,   127,   128,   255,  256};
+        boolean[] overflow = new boolean[] {false, false, true, false, false, false, true};
+        int    [] expected = new int    [] {   -1,  -128,    0,   127,  -128,  -1,  0};
 
         for (int i = 0; i < values.length; i++) {
             assertEquals(1, st.executeUpdate("insert into #testNegativeOverflow values (" + values[i] + ")"));
@@ -2045,6 +2046,7 @@ public class ResultSetTest extends DatabaseTestCase {
             try {
                 byte b = rs.getByte(1);
                 assertFalse("expected numeric overflow error for value " + values[i] + ", got " + b, overflow[i]);
+		assertEquals(expected[i], b);
             } catch (SQLException e) {
                 assertTrue("unexpected numeric overflow for value " + values[i], overflow[i]);
             }
