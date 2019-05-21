@@ -256,7 +256,8 @@ public class Support {
                         } else {
                             break;
                         }
-                        if (val < Byte.MIN_VALUE || val > Byte.MAX_VALUE) {
+                        // if (val < Byte.MIN_VALUE || val > Byte.MAX_VALUE) {
+                        if (val < Byte.MIN_VALUE || val > 255) {
                             throw new SQLException(Messages.get("error.convert.numericoverflow", x, getJdbcTypeName(jdbcType)), "22003");
                         } else {
                             return new Integer(new Long(val).intValue());
